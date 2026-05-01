@@ -10,45 +10,43 @@ import NotDataMessage from "../components/nodata.component";
 import { filterPaginationData } from "../common/filter-pagination-data";
 import LoadMoreDataBtn from "../components/load-more.component";
 
+const categories = [
+  "programming", "hollywood", "film making", "social media",
+  "cooking", "tech", "finance", "travel", "health", "science",
+];
+
 const HomePage = () => {
-  let [blogs, setBlogs] = useState(null);
-  let [treningBlogs, setTreningBlogs] = useState(null);
-  let [pageState, setPageState] = useState("Home");
+  const [blogs, setBlogs]           = useState(null);
+  const [trendingBlogs, setTrendingBlogs] = useState(null);
+  const [pageState, setPageState]   = useState("home");
+  const [error, setError]           = useState(null);
 
-  let categories = [
-    "programing",
-    "hollywood",
-    "film making",
-    "social media",
-    "cooking",
-    "tech",
-    "finance",
-    "travel",
-  ];
-
-  const fetchlatestBlog = (page = 1) => {
+  const fetchLatestBlogs = (page = 1) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
       .then(async ({ data }) => {
-        let formatData = await filterPaginationData({
-          state: blogs,
+        const formatData = await filterPaginationData({
+          state: page > 1 ? blogs : null,
           data: data.blogs,
           page,
           counteRoute: "/all-latest-blogs-count",
         });
         setBlogs(formatData);
+        setError(null);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((err) => {
+        console.error("Failed to fetch blogs:", err);
+        setBlogs({ results: [], totalDocs: 0, page: 1 });
+        setError("Failed to load blogs. Check your server connection.");
       });
   };
 
-  const fetcBlogByCategory = ({ page = 1 }) => {
+  const fetchBlogsByCategory = (page = 1) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blog", { tag: pageState, page })
       .then(async ({ data }) => {
-        let formatData = await filterPaginationData({
-          state: blogs,
+        const formatData = await filterPaginationData({
+          state: page > 1 ? blogs : null,
           data: data.blogs,
           page,
           counteRoute: "/search-blog-count",
@@ -56,142 +54,119 @@ const HomePage = () => {
         });
         setBlogs(formatData);
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch(console.error);
   };
 
-  const fetchTrendingBlog = () => {
+  const fetchTrendingBlogs = () => {
     axios
       .get(import.meta.env.VITE_SERVER_DOMAIN + "/trending-blogs")
-      .then(({ data }) => {
-        setTreningBlogs(data.blogs);
-      })
-      .catch((error) => {
-        console.log(error);
+      .then(({ data }) => setTrendingBlogs(data.blogs))
+      .catch((err) => {
+        console.error("Failed to fetch trending:", err);
+        setTrendingBlogs([]);
       });
   };
 
-  const loadBlogBCategory = (e) => {
-    let category = e.target.innerText.toLowerCase();
+  const loadBlogByCategory = (e) => {
+    const category = e.target.innerText.toLowerCase();
     setBlogs(null);
-    if (pageState == category) {
-      setPageState("Home");
-      return;
-    }
+    if (pageState === category) { setPageState("home"); return; }
     setPageState(category);
   };
 
   useEffect(() => {
     activeTabRef.current.click();
-    if (pageState == "Home") {
-      fetchlatestBlog({ page: 1 });
+    if (pageState === "home") {
+      fetchLatestBlogs(1);
     } else {
-      fetcBlogByCategory({ page: 1 });
+      fetchBlogsByCategory(1);
     }
-    if (!treningBlogs) {
-      fetchTrendingBlog();
-    }
+    if (!trendingBlogs) fetchTrendingBlogs();
   }, [pageState]);
+
+  const TrendingSection = () => (
+    trendingBlogs == null ? (
+      <Loader />
+    ) : trendingBlogs.length ? (
+      trendingBlogs.map((blog, i) => (
+        <AnimationWraper transition={{ duration: 1, delay: i * 0.08 }} key={i}>
+          <MinimalBlogPost blog={blog} index={i} />
+        </AnimationWraper>
+      ))
+    ) : (
+      <NotDataMessage message="No Trending Blogs" />
+    )
+  );
 
   return (
     <AnimationWraper>
       <section className="h-cover flex justify-center gap-10">
+        {/* Main Feed */}
         <div className="w-full">
           <InPageNavigation
-            routes={[pageState.toUpperCase(), "Trending Blogs"]}
-            defaultHidden={["Trending Blogs"]}
+            routes={[pageState === "home" ? "Latest" : pageState, "Trending"]}
+            defaultHidden={["Trending"]}
           >
+            {/* Tab 1: Blog Feed */}
             <>
+              {error && (
+                <div className="p-4 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  <p className="font-medium">⚠️ {error}</p>
+                  <p className="mt-1 text-xs">Make sure your server is running and VITE_SERVER_DOMAIN is set in .env</p>
+                </div>
+              )}
               {blogs == null ? (
                 <Loader />
-              ) : blogs.results.length ? (
-                blogs.results.map((blog, i) => {
-                  return (
-                    <AnimationWraper
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      key={i}
-                    >
-                      <BlogPostCard
-                        content={blog}
-                        author={blog.author.personal_info}
-                      />
-                    </AnimationWraper>
-                  );
-                })
+              ) : blogs.results?.length ? (
+                blogs.results.map((blog, i) => (
+                  <AnimationWraper transition={{ duration: 1, delay: i * 0.06 }} key={i}>
+                    <BlogPostCard content={blog} author={blog.author.personal_info} />
+                  </AnimationWraper>
+                ))
               ) : (
-                <NotDataMessage message="No Blog Published" />
+                <NotDataMessage message="No blogs published yet" />
               )}
               <LoadMoreDataBtn
                 state={blogs}
-                fetchDataFun={
-                  pageState == "Home" ? fetchlatestBlog : fetcBlogByCategory
-                }
+                fetchDataFun={pageState === "home" ? fetchLatestBlogs : fetchBlogsByCategory}
               />
             </>
-            {treningBlogs == null ? (
-              <Loader />
-            ) : treningBlogs.length ? (
-              treningBlogs.map((blog, i) => {
-                return (
-                  <AnimationWraper
-                    transition={{ duration: 1, delay: i * 1 }}
-                    key={i}
-                  >
-                    <MinimalBlogPost blog={blog} index={i} />
-                  </AnimationWraper>
-                );
-              })
-            ) : (
-              <NotDataMessage message="No Trending Blogs" />
-            )}
+
+            {/* Tab 2: Trending (mobile) */}
+            <TrendingSection />
           </InPageNavigation>
         </div>
 
-        <div className=" min-w-[40%] lg:min-w-min border-1 bordder-grey pl-8 pt-3 max-md:hidden">
-          <div className=" flex flex-col gap-10">
-            <div>
-              <h1 className=" font-medium text-xl mb-8">
-                Storise from all interests
-              </h1>
+        {/* Sidebar */}
+        <div className="min-w-[300px] xl:min-w-[350px] border-l border-theme pl-8 pt-3 max-md:hidden">
+          {/* Categories */}
+          <div className="mb-10">
+            <h2 className="font-semibold text-sm uppercase tracking-wide text-muted mb-4">
+              Browse Topics
+            </h2>
+            <div className="flex gap-2 flex-wrap">
+              {categories.map((cat, i) => (
+                <button
+                  key={i}
+                  onClick={loadBlogByCategory}
+                  className={`tag text-xs transition-all ${
+                    pageState === cat
+                      ? "bg-purple text-white border-purple"
+                      : ""
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
 
-              <div className=" flex gap-3 flex-wrap">
-                {categories.map((categery, i) => {
-                  return (
-                    <button
-                      onClick={loadBlogBCategory}
-                      className={`tag ${
-                        pageState == categery ? " bg-grey text-black " : " "
-                      }`}
-                      key={i}
-                    >
-                      {categery}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <h1 className=" font-medium text-xl mb-8">
-                Trending <i className="fi fi-rr-arrow-trend-up"></i>
-              </h1>
-              {treningBlogs == null ? (
-                <Loader />
-              ) : treningBlogs.length ? (
-                treningBlogs.map((blog, i) => {
-                  return (
-                    <AnimationWraper
-                      transition={{ duration: 1, delay: i * 0.5 }}
-                      key={i}
-                    >
-                      <MinimalBlogPost blog={blog} index={i} />
-                    </AnimationWraper>
-                  );
-                })
-              ) : (
-                <NotDataMessage message="No Trending Blogs" />
-              )}
-            </div>
+          {/* Trending */}
+          <div>
+            <h2 className="font-semibold text-sm uppercase tracking-wide text-muted mb-4 flex items-center gap-2">
+              Trending <i className="fi fi-rr-arrow-trend-up text-purple"></i>
+            </h2>
+            <TrendingSection />
           </div>
         </div>
       </section>

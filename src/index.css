@@ -1,126 +1,236 @@
-@import url('https://fonts.googleapis.com/css2?family=Gelasio&family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gelasio&family=Inter:wght@400;500;600&display=swap');
 @import "@flaticon/flaticon-uicons/css/all/all";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --color-bg:      #ffffff;
+    --color-surface: #F3F3F3;
+    --color-border:  #E8E8E8;
+    --color-text:    #242424;
+    --color-muted:   #6B6B6B;
+    --color-accent:  #8B46FF;
+  }
+
+  .dark {
+    --color-bg:      #0f0f13;
+    --color-surface: #1a1a24;
+    --color-border:  #2a2a38;
+    --color-text:    #e8e8f0;
+    --color-muted:   #8888a0;
+    --color-accent:  #a060ff;
+  }
+}
+
 @layer components {
-    * {
-        @apply m-0 p-0 box-border text-base outline-purple/30 duration-100;
-    }
+  * {
+    @apply m-0 p-0 box-border text-base outline-purple/30 duration-100;
+  }
 
-    html{
-        @apply overflow-x-hidden;
-    }
+  html {
+    @apply overflow-x-hidden;
+  }
 
-    body {
-        @apply font-inter font-normal text-black;
-    }
+  body {
+    @apply font-inter font-normal;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 
-    i {
-        @apply mt-0.5;
-    }
+  i {
+    @apply mt-0.5;
+  }
 
-    section{
-        @apply py-4 px-[5vw] md:px-[7vw] lg:px-[10vw];
-    }
+  section {
+    @apply py-4 px-[5vw] md:px-[7vw] lg:px-[10vw];
+  }
 
-    ::selection {
-        @apply bg-purple/30;
-    }
+  ::selection {
+    @apply bg-purple/30;
+  }
 
-    img{
-        @apply w-full h-full object-cover;
-    }
+  img {
+    @apply w-full h-full object-cover;
+  }
 
-    .navbar{
-        @apply z-10 sticky top-0 flex items-center gap-12 w-full px-[5vw] py-5 h-[75px] border-b border-grey bg-white;
-    }
+  /* ── Navbar ─────────────────────────────────────────────── */
+  .navbar {
+    @apply z-10 sticky top-0 flex items-center gap-12 w-full px-[5vw] py-5 h-[75px] border-b;
+    background-color: var(--color-bg);
+    border-color: var(--color-border);
+  }
 
-    .h-cover{
-        @apply min-h-[calc(100vh-80px)];
-    }
+  .h-cover {
+    @apply min-h-[calc(100vh-80px)];
+  }
 
-    .center{
-        @apply block mx-auto;
-    }
+  .center {
+    @apply block mx-auto;
+  }
 
-    .btn-dark{
-        @apply whitespace-nowrap bg-black text-white rounded-full py-3 px-6 text-xl capitalize hover:bg-opacity-80;
-    }
+  /* ── Buttons ────────────────────────────────────────────── */
+  .btn-dark {
+    @apply whitespace-nowrap bg-black text-white rounded-full py-3 px-6 text-sm capitalize hover:bg-opacity-80 font-semibold tracking-wide;
+  }
 
-    .btn-light{
-        @apply btn-dark bg-lg text-black ;
-    }
+  .dark .btn-dark {
+    @apply bg-white text-black hover:bg-opacity-80;
+  }
 
-    .input-box {
-        @apply w-[100%] rounded-md p-4 bg-gre pl-12 border border-lg focus:bg-transparent placeholder:text-black;
-    }
+  .btn-light {
+    @apply btn-dark text-black;
+    background-color: var(--color-surface);
+  }
 
-    input:disabled, input:disabled ~ .input-icon{
-        @apply opacity-50;
-    }
+  /* ── Input ──────────────────────────────────────────────── */
+  .input-box {
+    @apply w-full rounded-xl p-4 pl-12 border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple/40 transition-all;
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
 
-    .input-icon{
-        @apply absolute left-4 top-1/2 -translate-y-1/2;
-    }
+  .input-box::placeholder {
+    color: var(--color-muted);
+  }
 
-    .link{
-        @apply text-dark-grey hover:text-black hover:bg-grey p-3 px-4 block opacity-75;
-    }
+  input:disabled,
+  input:disabled ~ .input-icon {
+    @apply opacity-50;
+  }
 
-    .hide{
-        @apply opacity-0 pointer-events-none duration-100;
-    }
+  .input-icon {
+    @apply absolute left-4 top-1/2 -translate-y-1/2;
+    color: var(--color-muted);
+  }
 
-    .show{
-        @apply opacity-100 pointer-events-auto;
-    }
+  /* ── Nav Links ──────────────────────────────────────────── */
+  .link {
+    @apply p-3 px-4 block opacity-75 hover:opacity-100 rounded-lg transition-all;
+    color: var(--color-muted);
+  }
 
-    .sidebar-link{
-        @apply flex gap-4 items-center py-5 text-dark-grey hover:text-black;
-    }
+  .link:hover {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
 
-    .sidebar-link.active{
-        @apply text-black border-r-2 border-black pl-6 bg-grey/50 -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none;
-    }
+  .hide {
+    @apply opacity-0 pointer-events-none duration-100;
+  }
 
-    #textEditor h2, h2{
-        @apply font-inter text-4xl leading-normal font-bold max-md:text-3xl max-md:leading-snug !important;
-    }
+  .show {
+    @apply opacity-100 pointer-events-auto;
+  }
 
-    #textEditor h3, h3 {
-        @apply font-inter text-3xl leading-loose max-md:text-2xl max-md:leading-normal !important;
-    }
+  .sidebar-link {
+    @apply flex gap-4 items-center py-5 transition-colors;
+    color: var(--color-muted);
+  }
 
-    #textEditor *, .blog-page-content *{
-        @apply font-gelasio text-xl leading-10 md:text-2xl;
-    }
+  .sidebar-link:hover {
+    color: var(--color-text);
+  }
 
-    #textEditor a, .blog-page-content a{
-        @apply text-purple underline hover:opacity-50;
-    }
+  .sidebar-link.active {
+    @apply border-r-2 border-black pl-6 -ml-6 md:rounded-tl-lg md:rounded-bl-lg max-md:border-none;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+  }
 
-    .tag{
-        @apply p-3 bg-gre rounded-full px-6 capitalize hover:bg-lg border-grey ;
-    }
+  /* ── Editor typography ──────────────────────────────────── */
+  #textEditor h2, h2 {
+    @apply font-inter text-4xl leading-normal font-bold max-md:text-3xl max-md:leading-snug !important;
+  }
 
-    .blog-title{
-        @apply text-2xl font-medium leading-7 line-clamp-3 sm:line-clamp-2;
-    }
+  #textEditor h3, h3 {
+    @apply font-inter text-3xl leading-loose max-md:text-2xl max-md:leading-normal !important;
+  }
 
-    .blog-index{
-        @apply text-4xl sm:text-3xl lg:text-5xl font-bold text-grey leading-none;
-    }
+  #textEditor *, .blog-page-content * {
+    @apply font-gelasio text-xl leading-10 md:text-2xl;
+  }
+
+  #textEditor a, .blog-page-content a {
+    @apply text-purple underline hover:opacity-50;
+  }
+
+  /* ── Tag ────────────────────────────────────────────────── */
+  .tag {
+    @apply p-2 px-5 rounded-full capitalize text-sm font-medium border cursor-pointer transition-all;
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .tag:hover {
+    background-color: var(--color-border);
+  }
+
+  /* ── Blog card titles ───────────────────────────────────── */
+  .blog-title {
+    @apply text-xl font-semibold leading-7 line-clamp-3 sm:line-clamp-2;
+    color: var(--color-text);
+  }
+
+  .blog-index {
+    @apply text-4xl sm:text-3xl lg:text-5xl font-bold leading-none;
+    color: var(--color-border);
+  }
+
+  /* ── Card ───────────────────────────────────────────────── */
+  .card {
+    @apply rounded-2xl border p-5 transition-all hover:shadow-md;
+    background-color: var(--color-bg);
+    border-color: var(--color-border);
+  }
+
+  /* ── Surface ────────────────────────────────────────────── */
+  .surface {
+    background-color: var(--color-surface);
+  }
+
+  .border-theme {
+    border-color: var(--color-border);
+  }
+
+  .text-theme {
+    color: var(--color-text);
+  }
+
+  .text-muted {
+    color: var(--color-muted);
+  }
+
+  .bg-theme {
+    background-color: var(--color-bg);
+  }
 }
 
-.ce-block__content, .ce-toolbar__content{
-    max-width: 900px;
+/* ── EditorJS overrides ─────────────────────────────────────── */
+.ce-block__content,
+.ce-toolbar__content {
+  max-width: 900px;
 }
 
-.cdx-settings-button[data-tune='withBorder'],
-.cdx-settings-button[data-tune='withBackground'],
-.cdx-settings-button[data-tune='stretched'] {
+.cdx-settings-button[data-tune="withBorder"],
+.cdx-settings-button[data-tune="withBackground"],
+.cdx-settings-button[data-tune="stretched"] {
   display: none;
+}
+
+/* ── Dark EditorJS ──────────────────────────────────────────── */
+.dark .ce-toolbar__plus,
+.dark .ce-toolbar__settings-btn {
+  background-color: #1a1a24;
+  color: #e8e8f0;
+  border-color: #2a2a38;
+}
+
+.dark .ce-block--selected .ce-block__content {
+  background-color: #2a2a38;
 }

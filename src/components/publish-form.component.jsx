@@ -8,176 +8,148 @@ import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
 
 const PublishForm = () => {
-  let characterLimit = 200;
-  let tagLimit = 5;
-  let {
+  const characterLimit = 200;
+  const tagLimit = 10;
+
+  const {
     blog,
     blog: { title, banner, tags, des, content },
     setEditorState,
     setBlog,
   } = useContext(EditorContext);
 
-  let {
+  const {
     userAuth: { access_token },
   } = useContext(UserContext);
 
-  let Navigate = useNavigate();
-
-  const handlCloseEvent = () => {
-    setEditorState("editor");
-  };
-  const handleBlogTitleChange = (e) => {
-    let input = e.target;
-    setBlog({ ...blog, title: input.value });
-  };
-
-  const handleBlogDesChange = (e) => {
-    let input = e.target;
-    setBlog({ ...blog, des: input.value });
-  };
-
-  const handleTitleKeyDown = (e) => {
-    if (e.keyCode == 13) {
-      e.preventDefault();
-    }
-  };
+  const Navigate = useNavigate();
 
   const handleKeyDown = (e) => {
-    if (e.keyCode == 13 || e.keyCode == 188) {
+    if (e.keyCode === 13 || e.keyCode === 188) {
       e.preventDefault();
-
-      let tag = e.target.value;
-
-      if (tags.length < tagLimit) {
-        if (!tags.includes(tag) && tag.length) {
-          setBlog({ ...blog, tags: [...tags, tag] });
-        }
-      } else {
-        toast.error(`You can add max ${tagLimit} Tags`);
-      }
+      const tag = e.target.value.trim().toLowerCase();
+      if (!tag) return;
+      if (tags.length >= tagLimit) return toast.error(`Maximum ${tagLimit} tags allowed`);
+      if (tags.includes(tag)) return toast.error("Tag already added");
+      setBlog({ ...blog, tags: [...tags, tag] });
       e.target.value = "";
     }
   };
 
   const publishBlog = (e) => {
-    if (e.target.className.includes("disable")) {
-      return;
-    }
+    e.preventDefault();
+    if (!banner?.length) return toast.error("Upload a blog banner first");
+    if (!title?.length) return toast.error("Add a blog title first");
+    if (!des?.length || des.length > characterLimit)
+      return toast.error(`Description required (max ${characterLimit} chars)`);
+    if (!tags?.length) return toast.error("Add at least one tag");
 
-    if (!title.length) {
-      return toast.error("Write blog title before publishing");
-    }
-    if (!des.length || des.length > characterLimit) {
-      return toast.error("Write a description between 50 and 200 characters");
-    }
-    if (!tags.length) {
-      return toast.error("Enter at least one Tag for your Blog");
-    }
+    const loadingToast = toast.loading("Publishing…");
 
-    let loadingToast = toast.loading("publishing....");
-
-    e.target.classList.add("disable");
-
-    let blogObj = {
-      title,
-      banner,
-      tags,
-      des,
-      content,
-      draft: false,
-    };
+    const blogObj = { title, banner, tags, des, content, draft: false };
 
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
+        headers: { Authorization: `Bearer ${access_token}` },
       })
       .then(() => {
-        e.target.classList.remove("disable");
         toast.dismiss(loadingToast);
-        toast.success("Published 👍🏻");
-
-        setTimeout(() => {
-          Navigate("/");
-        }, 500);
+        toast.success("Blog published! �");
+        setTimeout(() => Navigate("/"), 500);
       })
       .catch(({ response }) => {
-        e.target.classList.remove("disable");
         toast.dismiss(loadingToast);
-
-        return toast.error(response.data.error);
+        toast.error(response?.data?.error || "Failed to publish");
       });
   };
 
   return (
     <AnimationWraper>
       <section className="w-screen min-h-screen grid items-center lg:grid-cols-2 py-16 lg:gap-4">
-        <Toaster />
+        <Toaster position="top-right" />
 
+        {/* Close button */}
         <button
-          className="w-12 h-12 absolute right-[5vw] z-10 to-[5%] lg:top-[10%]"
-          onClick={handlCloseEvent}
+          type="button"
+          className="w-10 h-10 absolute right-[5vw] top-[5%] lg:top-[10%] rounded-full flex items-center justify-center border border-theme hover:bg-theme transition-all"
+          onClick={() => setEditorState("editor")}
         >
-          <i class="fi fi-br-x"></i>
+          {/* FIX: was `class` — now `className` */}
+          <i className="fi fi-br-x text-sm text-muted"></i>
         </button>
-        <div className="max-w-[550px] center ">
-          <h3 className="text-dark-grey mb-1"> Preview </h3>
-          <div className="w-full aspect-video rounded-lg overflow-hidden bg-grey mt-4 border-grey">
-            <img src={banner} />
+
+        {/* Left: Preview */}
+        <div className="max-w-[550px] center px-6">
+          <p className="text-muted text-sm mb-2 font-medium uppercase tracking-wide">
+            Preview
+          </p>
+          <div className="w-full aspect-video rounded-2xl overflow-hidden border border-theme bg-theme">
+            <img src={banner} alt="Blog banner" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-4xl font-medium mt-2 leading-tight line-clamp-2">
+          <h1 className="text-3xl font-bold mt-4 leading-tight line-clamp-2 text-theme">
             {title}
           </h1>
-          <p className="font-gelasio line-clamp-2 leading-7 text-xl mt-4">
-            {des}
+          <p className="font-gelasio line-clamp-2 leading-7 text-base mt-3 text-muted">
+            {des || "Your description will appear here…"}
           </p>
         </div>
-        <div className="border-grey lg:border-1 lg:pl-8">
-          <p className="text-dark-grey mb-2 mt-9">Blog Title</p>
+
+        {/* Right: Form */}
+        <div className="lg:pl-8 px-6 mt-10 lg:mt-0">
+          {/* Blog Title */}
+          <label className="block text-sm font-medium text-muted mb-1 mt-6">
+            Blog Title
+          </label>
           <input
             type="text"
             placeholder="Blog Title"
             defaultValue={title}
-            className="input-box pl-4"
-            onChange={handleBlogTitleChange}
+            className="input-box"
+            onChange={(e) => setBlog({ ...blog, title: e.target.value })}
           />
 
-          <p className="text-dark-grey mb-2 mt-9">
-            Short description about your blog
-          </p>
+          {/* Description */}
+          <label className="block text-sm font-medium text-muted mb-1 mt-5">
+            Short Description
+          </label>
           <textarea
             maxLength={characterLimit}
             defaultValue={des}
-            className="h-40 resize-none leading-7 input-box pl-4"
-            onChange={handleBlogDesChange}
-            onKeyDown={handleTitleKeyDown}
+            className="h-36 resize-none leading-7 input-box"
+            placeholder="Write a short, engaging description…"
+            onChange={(e) => setBlog({ ...blog, des: e.target.value })}
+            onKeyDown={(e) => e.keyCode === 13 && e.preventDefault()}
           ></textarea>
-          <p className="mt-1 text-dark-grey text-sm text-right">
-            {characterLimit - des.length} characters left
-          </p>
-          <p className="text-dark-grey mb-2 mt-9">
-            Topics - (Helps is searching and ranking your blog post )
+          <p className="text-right text-xs text-muted mt-1">
+            {characterLimit - (des?.length || 0)} characters left
           </p>
 
-          <div className="relative input-box pl-2 py-2 pb-4">
+          {/* Tags */}
+          <label className="block text-sm font-medium text-muted mb-1 mt-5">
+            Topics / Tags
+          </label>
+          <div className="input-box py-3 min-h-[60px]">
             <input
               type="text"
-              placeholder="Topics"
-              className="sticky input-box bg-white top-0 left-0 pl-4 mb-3 focus:bg-white"
+              placeholder="Press Enter or comma to add tag…"
+              className="w-full outline-none bg-transparent text-sm text-theme placeholder:text-muted mb-2"
               onKeyDown={handleKeyDown}
             />
-            {tags.map((tag, i) => {
-              return <Tag tag={tag} key={i} />;
-            })}
+            {tags.map((tag, i) => (
+              <Tag tag={tag} tagIndex={i} key={i} />
+            ))}
           </div>
-          <p className="mt-1 mb-4 text-dark-grey text-right">
-            {tagLimit - tags.length} Tags left{" "}
+          <p className="text-right text-xs text-muted mt-1 mb-6">
+            {tagLimit - tags.length} tags left
           </p>
-          <button className="btn-light px-8" onClick={publishBlog}>
-            <b>
-            Publish Blog
-            </b>
+
+          {/* Publish Button */}
+          <button
+            type="button"
+            className="btn-dark px-8 w-full md:w-auto"
+            onClick={publishBlog}
+          >
+            Publish Blog 🚀
           </button>
         </div>
       </section>

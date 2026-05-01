@@ -1,31 +1,13 @@
-import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import {getStorage} from "firebase/storage"
+// DEPRECATED: Firebase functionality has been removed.
+// Images are now stored in MongoDB GridFS via server endpoints:
+// - POST /upload-banner - for blog banner images
+// - POST /upload-image  - for blog content images
+// - GET  /image/:id     - to serve images
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDqIePMwCU1GPkOkwni98NIMKJ25xz74k0",
-  authDomain: "react-js-blog-website-54638.firebaseapp.com",
-  projectId: "react-js-blog-website-54638",
-  storageBucket: "react-js-blog-website-54638.appspot.com",
-  messagingSenderId: "277574148092",
-  appId: "1:277574148092:web:62bdbd4df3d43f8a71dc79"
+// This file is kept for reference but not used in the current implementation.
+
+export const imageDb = null;
+export const authWithGoogle = async () => {
+  console.warn("Google Auth via Firebase has been removed");
+  return null;
 };
-
-const app = initializeApp(firebaseConfig);
-export const imageDb = getStorage(app)
-
-const provider = new GoogleAuthProvider();
-
-const auth = getAuth();
-
-export const authWithGoogle = async () =>{
-    let user = null;
-    await signInWithPopup(auth, provider)
-    .then((result)=> {
-        user = result.user
-    })
-    .catch((error)=> {
-        console.log("error here",error)
-    })
-    return user;
-}

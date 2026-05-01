@@ -1,39 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-    theme: {
-        
-        colors: {
-            'white': '#FFFFFF',
-            'black': '#242424',
-            'grey': '#9BCF53',
-            'dark-grey': '#6B6B6B',
-            'red': '#FF4E4E',
-            'transparent': 'transparent',
-            'twitter': '#1DA1F2',
-            'purple': '#9BCF53',
-            'green' : '#9BCF53',
-            'gre' : '#F3F3F3',
-            'lg':'#BFEA7C',
-        },
-
-        fontSize: {
-            'sm': '12px',
-            'base': '14px',
-            'xl': '16px',
-            '2xl': '20px',
-            '3xl': '28px',
-            '4xl': '38px',
-            '5xl': '50px',
-        },
-
-        extend: {
-            fontFamily: {
-              inter: ["'Inter'", "sans-serif"],
-              gelasio: ["'Gelasio'", "serif"]
-            },
-        },
-
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
+  theme: {
+    extend: {
+      fontFamily: {
+        inter: ["Inter", "sans-serif"],
+        gelasio: ["Gelasio", "serif"],
+      },
+      colors: {
+        white:       "#ffffff",
+        black:       "#242424",
+        grey:        "#F3F3F3",
+        "light-grey": "#E8E8E8",
+        "dark-grey": "#6B6B6B",
+        red:         "#FF4E4E",
+        twitter:     "#1DA1F2",
+        purple:      "#8B46FF",
+        // aliases used in existing code
+        gre:  "#F3F3F3",
+        lg:   "#E8E8E8",
+        // Dark mode
+        "d-bg":     "#0f0f13",
+        "d-card":   "#1a1a24",
+        "d-border": "#2a2a38",
+        "d-grey":   "#9a9ab0",
+      },
     },
-    plugins: [],
+  },
+  plugins: [],
 };

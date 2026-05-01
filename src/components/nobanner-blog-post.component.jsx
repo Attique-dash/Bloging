@@ -1,11 +1,11 @@
 import { getDay } from "../common/date";
 import { Link } from "react-router-dom";
 
-
 const MinimalBlogPost = ({ blog, index }) => {
-  let {
+  const {
     title,
-    bolg_id: id,
+    // FIX: was `bolg_id` — corrected to `blog_id` 
+    blog_id: id,
     author: {
       personal_info: { fullname, username, profile_img },
     },
@@ -13,21 +13,39 @@ const MinimalBlogPost = ({ blog, index }) => {
   } = blog;
 
   return (
-    <div className="flex gap-5 mb-8">
-      <h1 className=" blog-index">{index < 10 ? "0" + (index + 1) : index}</h1>
-      <div>
-        <div className=" flex gap-2 item-center mb-7">
-          <img src={profile_img} className=" w-6 h-6 rounded-full" />
-          {fullname}
-          <Link to={`/user/${username}`} className=" underline">
-                    <b>  @{username}</b>
-                  </Link>
+    <Link to={`/blog/${id}`} className="flex gap-5 mb-7 group">
+      {/* Index number */}
+      <h1 className="blog-index shrink-0 select-none">
+        {index < 9 ? "0" + (index + 1) : index + 1}
+      </h1>
 
-          <p className="min-w-fit"> {getDay(publishedAt)} </p>
+      <div className="flex-1 min-w-0">
+        {/* Author row */}
+        <div className="flex items-center gap-2 mb-2">
+          <img
+            src={profile_img}
+            className="w-5 h-5 rounded-full object-cover shrink-0"
+            alt={fullname}
+          />
+          <span className="text-xs text-muted truncate">
+            {fullname}
+            <Link
+              to={`/user/${username}`}
+              className="font-semibold text-theme ml-1 hover:text-purple"
+            >
+              @{username}
+            </Link>
+          </span>
+          <span className="text-xs text-muted shrink-0">{getDay(publishedAt)}</span>
         </div>
-        <h1 className=" blog-title">{title}</h1>
+
+        {/* Title */}
+        <h1 className="blog-title group-hover:text-purple transition-colors line-clamp-2">
+          {title}
+        </h1>
       </div>
-    </div>
+    </Link>
   );
 };
+
 export default MinimalBlogPost;

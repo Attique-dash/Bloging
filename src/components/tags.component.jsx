@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { EditorContext } from "../pages/editor.pages";
 
-const Tag = ({ tag }) => {
-  let {
+const Tag = ({ tag, tagIndex }) => {
+  const {
     blog,
-    blog: { tags, tagIndex },
+    blog: { tags },
     setBlog,
   } = useContext(EditorContext);
 
@@ -13,40 +13,43 @@ const Tag = ({ tag }) => {
     e.target.focus();
   };
 
-  const handeTagEdit = (e) => {
-    if ((e.keyCode = 13 || e.keyCode == 188)) {
+  // FIX: was `e.keyCode = 13` (assignment!) — now correctly `e.keyCode === 13` 
+  const handleTagEdit = (e) => {
+    if (e.keyCode === 13 || e.keyCode === 188) {
       e.preventDefault();
-
-      let currentTag = e.target.innerText;
-
-      tags[tagIndex] = currentTag;
-
-      setBlog({ ...blog, tags });
-
+      const currentTag = e.target.innerText.trim();
+      if (currentTag) {
+        const updatedTags = [...tags];
+        updatedTags[tagIndex] = currentTag;
+        setBlog({ ...blog, tags: updatedTags });
+      }
       e.target.setAttribute("contentEditable", false);
     }
   };
 
-  const handeTagDelete = () => {
-    tags = tags.filter((t) => t != tag);
-
-    setBlog({ ...blog, tags });
+  const handleTagDelete = () => {
+    const updatedTags = tags.filter((t) => t !== tag);
+    setBlog({ ...blog, tags: updatedTags });
   };
 
   return (
-    <div className="relative p-2 mt-2 mr-2 px-5 bg-white rounded-full inline-block hover:bg-opacity-50 pr-8 ">
+    <div className="relative p-2 mt-2 mr-2 px-5 rounded-full inline-flex items-center pr-8 border border-theme hover:border-purple/50 transition-all"
+         style={{ backgroundColor: "var(--color-surface)" }}>
       <p
-        className="outline-none "
-        onKeyDown={handeTagEdit}
+        className="outline-none text-sm font-medium text-theme"
+        onKeyDown={handleTagEdit}
         onClick={addEditable}
+        suppressContentEditableWarning
       >
         {tag}
       </p>
       <button
-        className="mt-[2px] rounded-full absolute right-3 top-1/2 -translate-y-1/2"
-        onClick={handeTagDelete}
+        type="button"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-red transition-colors"
+        onClick={handleTagDelete}
       >
-        <i class="fi fi-br-x text-sm pointer-events-none"></i>
+        {/* FIX: was `class` — now `className` */}
+        <i className="fi fi-br-x text-xs pointer-events-none"></i>
       </button>
     </div>
   );

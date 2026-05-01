@@ -5,46 +5,38 @@ import Header from "@editorjs/header";
 import Quote from "@editorjs/quote";
 import Marker from "@editorjs/marker";
 import InLineCode from "@editorjs/inline-code";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { imageDb } from "../common/firebase";
-import { v4 } from "uuid";
+import axios from "axios";
 
-const uploadImageByFile = (e) => {
-  const imgref = ref(imageDb, `/blogImages/${v4()}`);
-  uploadBytes(imgref, e)
-    .then(() => {
-      return getDownloadURL(imgref);
+// Get auth token from session storage
+const getToken = () => {
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  return user?.access_token;
+};
+
+// Upload image to server (MongoDB GridFS)
+const uploadImageByFile = (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  return axios
+    .post(import.meta.env.VITE_SERVER_DOMAIN + "/upload-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${getToken()}`,
+      },
     })
-    .then((URL) => {
-      if (URL) {
-        return {
-          success: 1,
-          file: { URL },
-        };
-      }
-    })
+    .then(({ data }) => data)
     .catch((error) => {
-      console.error("Error uploading image:", error);
-      return {
-        success: 0,
-        error: "Failed to upload image.",
-      };
+      console.error("Image upload error:", error);
+      return { success: 0, error: "Failed to upload image" };
     });
 };
 
-const uploadImageByUrl = (e) => {
-  let link = new promise((resolve, reject) => {
-    try {
-      resolve(e);
-    } catch (err) {
-      reject(err);
-    }
-  });
-  return link.then((url) => {
-    return {
-      success: 1,
-      file: { url },
-    };
+// Upload image by URL (just returns the URL for EditorJS)
+const uploadImageByUrl = (url) => {
+  return Promise.resolve({
+    success: 1,
+    file: { url },
   });
 };
 
@@ -58,7 +50,7 @@ export const tools = {
     class: Image,
     config: {
       uploader: {
-        uploadByUrl: uploadImageByUrl,
+        uploadByUrl:  uploadImageByUrl,
         uploadByFile: uploadImageByFile,
       },
     },
@@ -66,15 +58,15 @@ export const tools = {
   header: {
     class: Header,
     config: {
-      placeholder: "Enter a Heading",
-      levels: [2, 3],
-      defaultLevel: 2,
+      placeholder:   "Type a heading…",
+      levels:        [2, 3],
+      defaultLevel:  2,
     },
   },
   quote: {
-    class: Quote,
+    class:         Quote,
     inlineToolbar: true,
   },
-  marker: Marker,
+  marker:     Marker,
   inlineCode: InLineCode,
 };
