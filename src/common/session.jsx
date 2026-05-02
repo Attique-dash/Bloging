@@ -6,7 +6,7 @@ const lookInSession = (key) => {
   return sessionStorage.getItem(key);
 };
 
-const removeFormSession = (key) => {
+const removeFromSession = (key) => {
   return sessionStorage.removeItem(key);
 };
 
@@ -14,4 +14,4 @@ const logOutUser = () => {
   sessionStorage.clear();
 };
 
-export { storeInSession, lookInSession, removeFormSession, logOutUser };
+export { storeInSession, lookInSession, removeFromSession, logOutUser };

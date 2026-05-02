@@ -18,7 +18,8 @@ export const filterPaginationData = async ({
         obj = { results: data, page: 1, totalDocs };
       })
       .catch((err) => {
-        console.log(err);
+        console.error("filterPaginationData error:", err);
+        throw err;
       });
   }
   return obj;

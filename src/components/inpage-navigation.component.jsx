@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, createRef } from "react";
 
-export let activeTabLineRef;
-export let activeTabRef;
+// FIX: Use createRef at module level so they're not reassigned on every render
+export const activeTabLineRef = createRef();
+export const activeTabRef = createRef();
 
 const InPageNavigation = ({
   routes,
@@ -9,8 +10,6 @@ const InPageNavigation = ({
   defaultActiveIndex = 0,
   children,
 }) => {
-  activeTabLineRef = useRef();
-  activeTabRef    = useRef();
 
   const [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex);
 

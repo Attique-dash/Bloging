@@ -23,8 +23,11 @@ const Navbar = () => {
     }
   };
 
-  const handleBlur = () => {
-    setTimeout(() => setUserNavPanel(false), 200);
+  const handleBlur = (e) => {
+    // Only close if the new focused element is outside the nav panel
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setUserNavPanel(false);
+    }
   };
 
   return (
@@ -88,10 +91,11 @@ const Navbar = () => {
           {access_token ? (
             <div
               className="relative"
+              tabIndex={-1}
               onClick={() => setUserNavPanel((v) => !v)}
               onBlur={handleBlur}
             >
-              <button className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-purple/30 hover:ring-purple/60 transition-all">
+              <button className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-purple/30 hover:ring-purple/60 transition-all" tabIndex={-1}>
                 <img src={profile_img} className="w-full h-full object-cover" alt="Profile" />
               </button>
               {userNavPanel && <UserNavigationPanel />}
