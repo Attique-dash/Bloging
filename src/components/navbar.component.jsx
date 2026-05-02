@@ -32,9 +32,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="navbar">
+      <nav className="navbar shadow-sm backdrop-blur-md bg-opacity-95">
         {/* Logo */}
-        <Link to="/" className="flex-none w-10 h-10">
+        <Link to="/" className="flex-none w-10 h-10 hover:scale-105 transition-transform">
           <img src={logo} className="w-full object-contain" alt="Logo" />
         </Link>
 
@@ -45,23 +45,23 @@ const Navbar = () => {
             (searchboxVisibility ? "show" : "hide")
           }
         >
-          <div className="relative">
+          <div className="relative group">
             <input
               type="text"
               placeholder="Search blogs, topics, people…"
-              className="w-full md:w-64 lg:w-80 input-box py-3 pl-10 pr-4 text-sm"
+              className="w-full md:w-64 lg:w-80 input-box py-2.5 pl-10 pr-4 text-sm rounded-full"
               style={{ paddingLeft: "2.5rem" }}
               onKeyDown={handleSearch}
             />
-            <i className="fi fi-rr-search absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-muted"></i>
+            <i className="fi fi-rr-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-muted group-focus-within:text-purple transition-colors"></i>
           </div>
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-2 md:gap-4 ml-auto">
+        <div className="flex items-center gap-2 md:gap-3 ml-auto">
           {/* Mobile search toggle */}
           <button
-            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-theme surface"
+            className="md:hidden w-9 h-9 rounded-full flex items-center justify-center hover:bg-surface transition-colors"
             onClick={() => setSearchboxVisibility((v) => !v)}
           >
             <i className="fi fi-rr-search text-lg text-muted"></i>
@@ -70,7 +70,7 @@ const Navbar = () => {
           {/* Dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
             style={{ backgroundColor: "var(--color-surface)" }}
             title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
@@ -80,33 +80,33 @@ const Navbar = () => {
           {/* Write Button */}
           <Link
             to="/editor"
-            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:scale-105"
             style={{ backgroundColor: "var(--color-surface)", color: "var(--color-text)" }}
           >
-            <i className="fi fi-rr-file-edit text-sm"></i>
-            Write
+            <i className="fi fi-rr-pen-nib text-sm"></i>
+            <span>Write</span>
           </Link>
 
           {/* Auth */}
           {access_token ? (
             <div
-              className="relative"
+              className="relative ml-1"
               tabIndex={-1}
               onClick={() => setUserNavPanel((v) => !v)}
               onBlur={handleBlur}
             >
-              <button className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-purple/30 hover:ring-purple/60 transition-all" tabIndex={-1}>
+              <button className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-purple/30 hover:ring-purple/60 transition-all" tabIndex={-1}>
                 <img src={profile_img} className="w-full h-full object-cover" alt="Profile" />
               </button>
               {userNavPanel && <UserNavigationPanel />}
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link className="btn-dark py-2 px-5 text-sm" to="/signin">
+              <Link className="text-sm font-medium text-muted hover:text-theme transition-colors px-3 py-2" to="/signin">
                 Sign In
               </Link>
-              <Link className="btn-light py-2 px-5 text-sm hidden md:block" to="/signup">
-                Sign Up
+              <Link className="btn-dark py-2 px-5 text-sm" to="/signup">
+                Get Started
               </Link>
             </div>
           )}

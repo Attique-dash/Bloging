@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import AnimationWraper from "../common/page-animation";
 import { UserContext } from "../App";
-import { removeFormSession } from "../common/session";
+import { removeFromSession } from "../common/session";
 import { useContext } from "react";
 
 const UserNavigationPanel = () => {
@@ -11,7 +11,7 @@ const UserNavigationPanel = () => {
   } = useContext(UserContext);
 
   const signOutUser = () => {
-    removeFormSession("user");
+    removeFromSession("user");
     setUserAuth({ access_token: null });
   };
   return (

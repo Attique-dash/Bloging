@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { useParams, Link } from "react-router-dom";
 import AnimationWraper from "../common/page-animation";
 import Loader from "../components/loader.component";
 import AboutUser from "../components/about.component";
@@ -10,6 +10,8 @@ import BlogPostCard from "../components/blog-post.component";
 import NotDataMessage from "../components/nodata.component";
 import LoadMoreDataBtn from "../components/load-more.component";
 import PageNotFound from "./404.page";
+import BlogActions from "../components/blog-actions.component";
+import { UserContext } from "../App";
 
 export const profileDataStructure = {
   personal_info: { fullname: "", username: "", profile_img: "", bio: "" },
@@ -20,17 +22,21 @@ export const profileDataStructure = {
 
 const ProfilePage = () => {
   const { id: profileId } = useParams();
+  const { userAuth } = useContext(UserContext);
 
   const [profile, setProfile]           = useState(profileDataStructure);
   const [loading, setLoading]           = useState(true);
   const [blogs, setBlogs]               = useState(null);
   const [profileLoaded, setProfileLoaded] = useState("");
 
+  const isOwnProfile = userAuth?.access_token && userAuth?.username === profileId;
+
   const {
     personal_info: { fullname, username: profile_username, profile_img, bio },
     account_info:  { total_posts, total_reads },
     social_links,
     joinedAt,
+    _id: profileUserId,
   } = profile;
 
   const fetchUserProfile = () => {
@@ -126,7 +132,25 @@ const ProfilePage = () => {
                 ) : blogs.results?.length ? (
                   blogs.results.map((blog, i) => (
                     <AnimationWraper transition={{ duration: 1, delay: i * 0.08 }} key={i}>
-                      <BlogPostCard content={blog} author={blog.author.personal_info} />
+                      <div className="relative group">
+                        <BlogPostCard content={blog} author={blog.author.personal_info} />
+                        {/* Edit/Delete actions for own blogs */}
+                        {isOwnProfile && (
+                          <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <BlogActions 
+                              blog={blog} 
+                              authorId={profileUserId}
+                              onDelete={() => {
+                                // Refresh blogs after delete
+                                setBlogs(prev => ({
+                                  ...prev,
+                                  results: prev.results.filter(b => b.blog_id !== blog.blog_id)
+                                }));
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </AnimationWraper>
                   ))
                 ) : (

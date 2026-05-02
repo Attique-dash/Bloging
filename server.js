@@ -391,6 +391,34 @@ app.post("/like-blog", verifyJWT, async (req, res) => {
   }
 });
 
+// Delete blog endpoint
+app.post("/delete-blog", verifyJWT, async (req, res) => {
+  try {
+    const userId = req.user;
+    const { blog_id } = req.body;
+
+    const blog = await Blog.findOne({ blog_id });
+    if (!blog) return res.status(404).json({ error: "Blog not found" });
+
+    // Check if user is the author
+    if (blog.author.toString() !== userId) {
+      return res.status(403).json({ error: "You can only delete your own blogs" });
+    }
+
+    await Blog.findOneAndDelete({ blog_id });
+
+    // Remove blog reference from user and decrement post count
+    await User.findByIdAndUpdate(userId, {
+      $pull: { blogs: blog._id },
+      $inc: { "account_info.total_posts": -1 },
+    });
+
+    return res.status(200).json({ message: "Blog deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Check if current user liked a blog
 app.post("/is-liked", verifyJWT, async (req, res) => {
   try {

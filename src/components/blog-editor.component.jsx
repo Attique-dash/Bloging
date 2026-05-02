@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../imgs/logo.png";
 import AnimationWraper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
 import axios from "axios";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { EditorContext } from "../pages/editor.pages";
 import EditorJS from "@editorjs/editorjs";
@@ -16,6 +16,10 @@ const getToken = () => {
 };
 
 const BlogEditor = () => {
+  const location = useLocation();
+  const editMode = location.state?.editMode || false;
+  const editBlog = location.state?.blog || null;
+
   const {
     blog,
     blog: { title, banner, content },
@@ -25,12 +29,19 @@ const BlogEditor = () => {
     setEditorState,
   } = useContext(EditorContext);
 
+  // Load blog data for editing
+  useEffect(() => {
+    if (editMode && editBlog) {
+      setBlog(editBlog);
+    }
+  }, [editMode, editBlog, setBlog]);
+
   useEffect(() => {
     if (!textEditor.isReady) {
       setTextEditor(
         new EditorJS({
           holderId:    "textEditor",
-          data:        content,
+          data:        editMode && editBlog ? editBlog.content : content,
           tools:       tools,
           placeholder: "Tell your story…",
         })
@@ -84,7 +95,12 @@ const BlogEditor = () => {
         .save()
         .then((data) => {
           if (data.blocks.length) {
-            setBlog({ ...blog, content: data });
+            // If editing, include the blog id
+            if (editMode && editBlog) {
+              setBlog({ ...blog, content: data, id: editBlog.blog_id });
+            } else {
+              setBlog({ ...blog, content: data });
+            }
             setEditorState("Publish");
           } else {
             toast.error("Write some content before publishing");
@@ -96,16 +112,28 @@ const BlogEditor = () => {
 
   return (
     <>
-      <nav className="navbar">
-        <Link to="/" className="flex-none w-10 h-10">
-          <img src={logo} className="w-full object-contain" />
+      <nav className="navbar border-b border-theme">
+        <Link to="/" className="flex-none w-10 h-10 hover:opacity-80 transition-opacity">
+          <img src={logo} className="w-full object-contain" alt="Logo" />
         </Link>
-        <p className="max-md:hidden text-muted text-sm line-clamp-1 flex-1 px-4">
-          {title?.length ? <span className="font-semibold text-theme">{title}</span> : "New Blog"}
-        </p>
-        <div className="flex gap-3 ml-auto">
-          <button className="btn-light py-2 px-5 text-sm" onClick={handlePublish}>
-            Publish
+        <div className="flex items-center gap-2 flex-1 px-4">
+          <span className="text-xs text-muted uppercase tracking-wide font-medium hidden md:block">
+            {editMode ? "Editing" : "New Blog"}
+          </span>
+          <p className="text-muted text-sm line-clamp-1 flex-1">
+            {title?.length ? <span className="font-semibold text-theme">{title}</span> : "Untitled"}
+          </p>
+        </div>
+        <div className="flex gap-3 ml-auto items-center">
+          <Link to="/" className="text-sm text-muted hover:text-theme transition-colors px-3 py-2">
+            Cancel
+          </Link>
+          <button 
+            className="btn-dark py-2 px-6 text-sm flex items-center gap-2 hover:scale-105 transition-transform" 
+            onClick={handlePublish}
+          >
+            <i className="fi fi-rr-check"></i>
+            {editMode ? "Update" : "Publish"}
           </button>
         </div>
       </nav>

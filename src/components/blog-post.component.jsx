@@ -26,40 +26,42 @@ const BlogPostCard = ({ content, author }) => {
   return (
     <Link
       to={`/blog/${id}`}
-      className="flex gap-6 items-start pb-6 mb-6 border-b border-theme group"
+      className="flex gap-5 items-start pb-6 mb-6 border-b border-theme group hover:opacity-90 transition-all"
     >
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Author */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2">
           <img
             src={profile_img}
-            className="w-7 h-7 rounded-full object-cover shrink-0"
+            className="w-6 h-6 rounded-full object-cover shrink-0 ring-1 ring-purple/20"
             alt={fullname}
           />
           <span className="text-sm font-medium text-theme truncate">{fullname}</span>
           <span className="text-xs text-muted">·</span>
           <span className="text-xs text-muted shrink-0">{getDay(publishedAt)}</span>
-          <span className="text-xs text-muted">·</span>
-          <span className="text-xs text-muted shrink-0">{readingTime} min read</span>
         </div>
 
         {/* Title */}
-        <h3 className="blog-title group-hover:text-purple transition-colors mb-2">
+        <h3 className="font-bold text-lg md:text-xl leading-tight text-theme group-hover:text-purple transition-colors mb-2 line-clamp-2">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-muted leading-6 line-clamp-2 max-sm:hidden md:max-[1100px]:hidden">
+        <p className="text-sm text-muted leading-6 line-clamp-2 mb-3 max-sm:hidden">
           {des}
         </p>
 
-        {/* Footer: tag + likes */}
-        <div className="flex items-center gap-4 mt-4">
+        {/* Footer: reading time + tag + likes */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted flex items-center gap-1">
+            <i className="fi fi-rr-clock text-xs"></i>
+            {readingTime} min
+          </span>
           {tags?.[0] && (
-            <span className="tag text-xs">{tags[0]}</span>
+            <span className="tag text-xs px-3 py-1">{tags[0]}</span>
           )}
-          <span className="flex items-center gap-1 text-xs text-muted ml-auto">
+          <span className="flex items-center gap-1 text-xs text-muted ml-auto group-hover:text-purple transition-colors">
             <i className="fi fi-rr-heart"></i>
             {total_likes?.toLocaleString() || 0}
           </span>
@@ -68,10 +70,10 @@ const BlogPostCard = ({ content, author }) => {
 
       {/* Banner Thumbnail */}
       {banner && (
-        <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden border border-theme">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-lg overflow-hidden border border-theme shadow-sm">
           <img
             src={banner}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             alt={title}
           />
         </div>
