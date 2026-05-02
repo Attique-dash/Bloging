@@ -5,13 +5,11 @@ import AnimationWraper from "../common/page-animation";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import { storeInSession } from "../common/session";
-import { useContext, useRef } from "react";
+import { useContext } from "react";
 import { UserContext } from "../App";
 import { authWithGoogle } from "../common/firebase";
 
 const UserAuthForm = ({ type }) => {
-  // FIX: use useRef to properly access the form element
-  const formRef = useRef(null);
 
   const {
     userAuth: { access_token },
@@ -39,8 +37,8 @@ const UserAuthForm = ({ type }) => {
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
-    // FIX: use formRef.current instead of the undefined `forElement` 
-    const form = new FormData(formRef.current);
+    // FIX: use e.target which is the form element
+    const form = new FormData(e.target);
     const formData = {};
     for (let [key, value] of form.entries()) {
       formData[key] = value;
@@ -84,9 +82,7 @@ const UserAuthForm = ({ type }) => {
     <AnimationWraper keyValue={type}>
       <section className="h-cover flex items-center justify-center">
         <Toaster position="top-right" />
-        {/* FIX: use ref instead of id for form access */}
         <form
-          ref={formRef}
           className="w-[90%] max-w-[420px]"
           onSubmit={handleSubmit}
         >
